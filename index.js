@@ -1,10 +1,11 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express();
-const cors = require('cors')
+const cors = require("cors");
 app.use(express.json());
-app.use(cors())
+app.use(cors());
 require("dotenv").config();
-
+app.use(cookieParser());
 const mongoose = require("mongoose");
 const { router } = require("./routes/user/user");
 mongoose
@@ -17,4 +18,4 @@ db.once("open", () => console.log("database connected"));
 app.listen(2000, () => {
   console.log("running");
 });
-app.use('/user',router)
+app.use("/user", router);
