@@ -18,6 +18,7 @@ const {
   getDonations,
   getAllFundraisers,
   getFundraiserById,
+  deleteFundraiser,
 } = require("../../controllers/fundraiser.controller");
 
 router.post("/create", createUser);
@@ -27,13 +28,14 @@ router.post("/login", loginUser);
 
 router.get("/logout", authenticateToken, logoutUser);
 router.get("/u/:id", authenticateToken, getUser);
-router.patch('/u/walletAddress', authenticateToken, setWalletAddress);
+router.patch("/u/walletAddress", authenticateToken, setWalletAddress);
 router.post("/createFund", authenticateToken, createFundraiser);
 // router.get("/f/:title", authenticateToken, getFundraiserDetails);
 router.get("/f/:id", authenticateToken, getFundraiserById);
 router.get("/f", authenticateToken, getAllFundraisers);
 router.post("/updateFund", authenticateToken, updateFundraiserAmount);
 router.get("/allDonations", authenticateToken, getDonations);
+router.post("/deleteFund", authenticateToken, deleteFundraiser);
 
 module.exports = {
   router,

@@ -46,7 +46,7 @@ const createFundraiser = async (req, res) => {
 const getFundraiserDetails = async (req, res) => {
   const { title } = req.params;
   const fundraiserExists = await fundraiserModel.findOne({ title });
-  if (!fundraiserExists) { 
+  if (!fundraiserExists) {
     return res.status(400).json({
       success: false,
       message: "Nothing that matches the given title",
@@ -76,7 +76,7 @@ const getFundraiserDetails = async (req, res) => {
 const getFundraiserById = async (req, res) => {
   const { id } = req.params;
   const fundraiserExists = await fundraiserModel.findById(id);
-  if (!fundraiserExists) { 
+  if (!fundraiserExists) {
     return res.status(400).json({
       success: false,
       message: "Nothing that matches the given id",
@@ -100,7 +100,7 @@ const getFundraiserById = async (req, res) => {
   return res.status(200).json({
     success: true,
     message: "Fundraiser fetched successfully",
-    data:fundraiserExists,
+    data: fundraiserExists,
   });
 };
 
@@ -158,9 +158,9 @@ const updateFundraiserAmount = async (req, res) => {
 const getAllFundraisers = async (_, res) => {
   const allFundraisers = await fundraiserModel.find({});
   return res.status(200).json({
-    allFundraisers
+    allFundraisers,
   });
-}
+};
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~ update Fundraiser ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -171,11 +171,33 @@ const getDonations = async (req, res) => {
   });
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Delete Fundraiser ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+const deleteFundraiser = async (req, res) => {
+  const { fundraiser_id } = req.body;
+  try {
+    const result = await fundraiserModel.findByIdAndDelete(fundraiser_id);
+    // console.log("Deleted : ", result);
+    return res.status(200).json({
+      success: true,
+      message: "Fundraiser Deleted",
+      result,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json({
+      success: false,
+      message: "Fundraiser deletion failed",
+    });
+  }
+};
+
 module.exports = {
   createFundraiser,
   getFundraiserDetails,
   updateFundraiserAmount,
   getDonations,
   getAllFundraisers,
-  getFundraiserById
+  getFundraiserById,
+  deleteFundraiser,
 };
