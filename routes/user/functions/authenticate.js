@@ -3,9 +3,8 @@ const UserModel = require("../../../models/UserModel");
 const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"]; //  Using Cookies for token
-    // const token = authHeader && authHeader.split(" ")[1];
-    const token = req.cookies?.token;
-
+    const authToken = authHeader && authHeader.split(" ")[1];
+    const token = req.cookies?.token || authToken;
     if (token == null)
       return res.json({ success: false, message: "Invalid Token" });
 

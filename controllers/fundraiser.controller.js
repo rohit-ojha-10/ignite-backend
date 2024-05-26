@@ -1,24 +1,22 @@
 const fundraiserModel = require("../models/FundraiserModel");
 const donationModel = require("../models/DonationModel");
 const UserModel = require("../models/UserModel");
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~ Create Fundraiser ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 const createFundraiser = async (req, res) => {
-  const { title, desc, raisingAmount } = req.body;
+  const payload = {
+    ...req.body,
+    raisedAmount: 0,
+    createdBy: req.user._id,
+    walletAddress: req.user.walletAddress,
+  };
   try {
-    const newFundRaiser = await fundraiserModel.create({
-      title,
-      desc,
-      raisingAmount,
-      raisedAmount: 0,
-      createdBy: req.user._id,
-    });
+    const newFundRaiser = await fundraiserModel.create({ ...payload });
     const Fundraiser = await fundraiserModel.findById(newFundRaiser._id);
     if (!Fundraiser) {
       res.json({
         success: false,
-        message: "error while creating Fundraiser",
+        message: "Error while creating Fundraiser",
       });
     }
     await UserModel.findByIdAndUpdate(
@@ -35,7 +33,7 @@ const createFundraiser = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Fundraiser creates successfully",
+      message: "Fundraiser created successfully",
       Fundraiser,
     });
   } catch (error) {
@@ -48,7 +46,7 @@ const createFundraiser = async (req, res) => {
 const getFundraiserDetails = async (req, res) => {
   const { title } = req.params;
   const fundraiserExists = await fundraiserModel.findOne({ title });
-  if (!fundraiserExists) {
+  if (!fundraiserExists) { 
     return res.status(400).json({
       success: false,
       message: "Nothing that matches the given title",
@@ -73,6 +71,36 @@ const getFundraiserDetails = async (req, res) => {
     success: true,
     message: "Fundraiser fetched successfully",
     fundraiser,
+  });
+};
+const getFundraiserById = async (req, res) => {
+  const { id } = req.params;
+  const fundraiserExists = await fundraiserModel.findById(id);
+  if (!fundraiserExists) { 
+    return res.status(400).json({
+      success: false,
+      message: "Nothing that matches the given id",
+    });
+  }
+  const fundraiser = await fundraiserModel.aggregate([
+    {
+      $match: {
+        id,
+      },
+    },
+    {
+      $addFields: {
+        totalDonations: {
+          $size: "$donatedBy",
+        },
+      },
+    },
+  ]);
+
+  return res.status(200).json({
+    success: true,
+    message: "Fundraiser fetched successfully",
+    data:fundraiserExists,
   });
 };
 
@@ -100,7 +128,7 @@ const updateFundraiserAmount = async (req, res) => {
   if (!fundraiser) {
     return res.status(400).json({
       success: false,
-      message: "invalid fundraiser ID",
+      message: "Invalid fundraiser ID",
     });
   }
 
@@ -127,6 +155,12 @@ const updateFundraiserAmount = async (req, res) => {
     fundraiser,
   });
 };
+const getAllFundraisers = async (_, res) => {
+  const allFundraisers = await fundraiserModel.find({});
+  return res.status(200).json({
+    allFundraisers
+  });
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~ update Fundraiser ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -142,4 +176,6 @@ module.exports = {
   getFundraiserDetails,
   updateFundraiserAmount,
   getDonations,
+  getAllFundraisers,
+  getFundraiserById
 };

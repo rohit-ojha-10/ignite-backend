@@ -31,6 +31,9 @@ const fundraiserModel = new mongoose.Schema(
         },
       },
     ],
+    walletAddress: {
+      type: String,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserModel",

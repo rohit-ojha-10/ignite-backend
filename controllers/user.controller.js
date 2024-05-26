@@ -41,6 +41,7 @@ const loginUser = async (req, res) => {
         { username: req.body.username },
         process.env.ACCESS_WEB_TOKEN
       );
+      savedUser.password = '';
       return res.cookie("token", token).json({
         success: true,
         user: savedUser,
@@ -79,4 +80,26 @@ const getUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, loginUser, getUser, logoutUser };
+const setWalletAddress = async (req, res) => {
+  try {
+    const id = req.user.id;
+    const { walletAddress } = req.body;
+    const updatedUser = await user.findByIdAndUpdate(
+      id,
+      { walletAddress: walletAddress },
+      { new: true, runValidators: true } // Options to return the updated document and run validators
+    );
+
+    // Check if the user exists
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    return res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.log(error);
+    return res.json(error);
+  }
+};
+
+module.exports = { createUser, loginUser, getUser, logoutUser, setWalletAddress };
